@@ -1,5 +1,68 @@
 # Pneuma Memory — Architecture
 
+## Full Flow Diagram
+
+```mermaid
+flowchart TD
+    U([User types message]) --> EXT
+
+    subgraph EXT["Chrome Extension (content.js)"]
+        INTERCEPT[Intercept submit\npreventDefault]
+    end
+
+    EXT -->|POST /api/memory| MEM
+
+    subgraph SRV["Local Server — localhost:3333"]
+        MEM["Intuicja t=0.1\nDetect topic\nQuery SQLite"]
+        MEM -->|memory block + topic| PANEL1
+    end
+
+    subgraph SP["Side Panel"]
+        PANEL1{{"⚡ Intuicja\nMemory block preview"}}
+        PANEL1 -->|✓ Zatwierdź| INJ
+        PANEL1 -->|✕ Ignoruj| NOINJ
+    end
+
+    INJ[Inject ---MEMORY BLOCK---\ninto message] --> SEND
+    NOINJ[Send original message\nwithout memory] --> SEND
+
+    SEND([Submit via DOM\nno API key needed]) --> AI
+
+    subgraph AI["AI Provider"]
+        CLAUDE["claude.ai / ChatGPT / Gemini\nUser's browser session"]
+    end
+
+    AI -->|Response streamed to DOM| DETECT
+
+    subgraph EXT2["Chrome Extension (content.js)"]
+        DETECT["Watch for\naction-bar-retry\n= streaming done"]
+    end
+
+    DETECT -->|question + answer| PANEL2
+
+    subgraph SP2["Side Panel"]
+        PANEL2{{"📖 Kronikarz\nQ+A preview"}}
+        PANEL2 -->|✓ Zapisz| CHRON
+        PANEL2 -->|✕ Ignoruj| DONE2([Done — nothing saved])
+    end
+
+    CHRON -->|POST /api/chronicle| KR
+
+    subgraph SRV2["Local Server"]
+        KR["Kronikarz t=0.3\nGenerate summary\ntopics, affect"]
+        KR --> DB[("SQLite\nraw_qa\ndiary\nmemory_log")]
+        KR --> GIT["Git commit\ninjection log"]
+    end
+
+    DB -.->|next session| MEM
+    GIT -.->|audit trail| GIT
+
+    style PANEL1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style PANEL2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
+    style AI fill:#e8e0f0,stroke:#7a6aaa,color:#1a1030
+```
+
 ## Overview
 
 Pneuma is a local memory layer that sits between you and any AI chat provider. It intercepts your messages, enriches them with relevant historical context, and saves the AI's responses for future use — all under your manual control.
