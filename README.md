@@ -30,39 +30,44 @@ Beyond cost: knowledge from last week's conversation is gone. Every new chat sta
 
 ```mermaid
 flowchart TD
-    U([User types message]) --> INTERCEPT
-    INTERCEPT["Chrome Extension\nintercepts submit"] -->|POST /api/memory| INTUICJA
+    U([User input]) --> INTERCEPT
+    INTERCEPT["Chrome Extension\nintercepts submit"] -->|POST /api/memory| INTUITION
 
-    INTUICJA["Intuicja t=0.1\nDetect topic · Query SQLite\nBuild memory block"]
+    INTUITION["⚡ Intuition  t=0.1\nDetect topic · Query SQLite\nBuild memory block"]
 
-    INTUICJA --> DEC1
+    INTUITION --> DEC1
 
-    DEC1{{"⚡ Side Panel\nIntuicja preview"}}
-    DEC1 -->|✓ Zatwierdź| INJ["Inject ---MEMORY BLOCK---\ninto message"]
-    DEC1 -->|✕ Ignoruj| SEND2["Send original\nwithout memory"]
+    DEC1{{"Side Panel\nIntuition preview"}}
+    DEC1 -->|✓ Approve| INJ["Inject ---MEMORY BLOCK---\ninto message"]
+    DEC1 -->|✕ Ignore| SEND2["Send original\nwithout memory"]
 
-    INJ --> AI
-    SEND2 --> AI
+    INJ --> CORTEX
+    SEND2 --> CORTEX
 
-    AI["AI Provider\nclaude.ai / ChatGPT / Gemini\nbrowser session — no API key"]
+    subgraph CORTEX["🧠 Cortex  — plug in any brain"]
+        direction LR
+        B1["claude.ai / ChatGPT\nGemini · browser OAuth"]
+        B2["Hermes-agent\nOpenClaw · local API"]
+        B3["Any stateless LLM\nAPI · WebSocket · CLI"]
+    end
 
-    AI --> DETECT["Extension detects\nresponse complete"]
+    CORTEX --> DETECT["Extension detects\nresponse complete"]
     DETECT --> DEC2
 
-    DEC2{{"📖 Side Panel\nKronikarz preview"}}
-    DEC2 -->|✓ Zapisz| KRONIKARZ
-    DEC2 -->|✕ Ignoruj| DONE([Done])
+    DEC2{{"Side Panel\nChronicler preview"}}
+    DEC2 -->|✓ Save| CHRONICLER
+    DEC2 -->|✕ Ignore| DONE([Done])
 
-    KRONIKARZ["Kronikarz t=0.3\nGenerate summary\ntopics · affect"]
-    KRONIKARZ --> DB[("SQLite\nraw_qa · diary")]
-    KRONIKARZ --> GIT["Git injection log"]
+    CHRONICLER["📖 Chronicler  t=0.3\nGenerate summary\ntopics · affect"]
+    CHRONICLER --> DB[("SQLite\nraw_qa · diary")]
+    CHRONICLER --> GIT["Git injection log"]
 
-    DB -.->|next session| INTUICJA
+    DB -.->|next session| INTUITION
 
     style DEC1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
     style DEC2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
     style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
-    style AI fill:#e8e0f0,stroke:#7a6aaa,color:#1a1030
+    style CORTEX fill:#ede8f8,stroke:#7a6aaa,color:#1a1030
 ```
 
 ---
