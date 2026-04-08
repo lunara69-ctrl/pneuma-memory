@@ -28,37 +28,41 @@ Beyond cost: knowledge from last week's conversation is gone. Every new chat sta
 
 ## How It Works
 
-```
-User types in claude.ai / ChatGPT / Gemini
-        │
-        ▼ Chrome Extension intercepts submit
-        │
-        ▼ POST localhost:3333/api/memory
-┌───────────────────────┐
-│  Intuicja (t=0.1)     │  Detects topic, queries SQLite
-│  Builds memory block  │  Relevant Q-A from prior sessions
-└──────────┬────────────┘
-           │
-           ▼ Side Panel preview
-    ┌───────────────────┐
-    │  ✓ Zatwierdź  ✕   │  User approves or ignores
-    └──────┬────────────┘
-           │ approved
-           ▼ Message sent with ---MEMORY BLOCK--- appended
-           │ Via browser DOM — no API key needed
-           │
-           ▼ AI responds normally
-           │
-           ▼ Side Panel: Kronikarz preview
-    ┌───────────────────┐
-    │  ✓ Zapisz     ✕   │  User approves or ignores
-    └──────┬────────────┘
-           │ approved
-           ▼ POST localhost:3333/api/chronicle
-┌───────────────────────┐
-│  Kronikarz (t=0.3)    │  LM Studio: summary, topics[], affect
-│  Saves to SQLite      │  Available for future sessions
-└───────────────────────┘
+```mermaid
+flowchart TD
+    U([User types message]) --> INTERCEPT
+    INTERCEPT["Chrome Extension\nintercepts submit"] -->|POST /api/memory| INTUICJA
+
+    INTUICJA["Intuicja t=0.1\nDetect topic · Query SQLite\nBuild memory block"]
+
+    INTUICJA --> DEC1
+
+    DEC1{{"⚡ Side Panel\nIntuicja preview"}}
+    DEC1 -->|✓ Zatwierdź| INJ["Inject ---MEMORY BLOCK---\ninto message"]
+    DEC1 -->|✕ Ignoruj| SEND2["Send original\nwithout memory"]
+
+    INJ --> AI
+    SEND2 --> AI
+
+    AI["AI Provider\nclaude.ai / ChatGPT / Gemini\nbrowser session — no API key"]
+
+    AI --> DETECT["Extension detects\nresponse complete"]
+    DETECT --> DEC2
+
+    DEC2{{"📖 Side Panel\nKronikarz preview"}}
+    DEC2 -->|✓ Zapisz| KRONIKARZ
+    DEC2 -->|✕ Ignoruj| DONE([Done])
+
+    KRONIKARZ["Kronikarz t=0.3\nGenerate summary\ntopics · affect"]
+    KRONIKARZ --> DB[("SQLite\nraw_qa · diary")]
+    KRONIKARZ --> GIT["Git injection log"]
+
+    DB -.->|next session| INTUICJA
+
+    style DEC1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style DEC2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
+    style AI fill:#e8e0f0,stroke:#7a6aaa,color:#1a1030
 ```
 
 ---
