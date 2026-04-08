@@ -4,63 +4,50 @@
 
 ```mermaid
 flowchart TD
-    U([User types message]) --> EXT
 
-    subgraph EXT["Chrome Extension (content.js)"]
-        INTERCEPT[Intercept submit\npreventDefault]
+    subgraph SESSION["🗨️ Current Chat Session  (unique session_id)"]
+        U([User input]) --> EXT["Chrome Extension\nintercepts submit"]
+        EXT -->|POST /api/memory| INT
+
+        INT["⚡ Intuition  t=0.1\nDetect topic · Query SQLite\nskip atoms already used\nin THIS session"]
+        INT --> SP1
+
+        SP1{{"Side Panel\nIntuition preview"}}
+        SP1 -->|✓ Approve| INJ["Inject ---MEMORY BLOCK---\nfrom other sessions"]
+        SP1 -->|✕ Ignore| ORIG["Send original\nwithout memory"]
+
+        INJ --> CORTEX
+        ORIG --> CORTEX
+
+        CORTEX["🧠 Cortex — plug in any brain\n─────────────────────────\nclaude.ai · ChatGPT · Gemini\nbrowser OAuth — no API key\n─────────────────────────\nHermes-agent · OpenClaw\nlocal API · WebSocket · CLI\n─────────────────────────\nAny stateless LLM interface"]
+
+        CORTEX --> DET["Extension detects\nresponse complete"]
+        DET --> SP2
+
+        SP2{{"Side Panel\nChronicler preview"}}
+        SP2 -->|✓ Save| CHR["📖 Chronicler  t=0.3\nGenerate summary\ntopics · affect"]
+        SP2 -->|✕ Ignore| DONE([Done — not saved])
     end
 
-    EXT -->|POST /api/memory| MEM
-
-    subgraph SRV["Local Server — localhost:3333"]
-        MEM["Intuicja t=0.1\nDetect topic\nQuery SQLite"]
-        MEM -->|memory block + topic| PANEL1
+    subgraph DB["🗄️ Long-term Memory — SQLite"]
+        direction LR
+        DBC[("session_id-current\nnew atoms")]
+        DB1[("session_id-1\nrelevant Q-A")]
+        DBN[("session_id-n\nrelevant Q-A")]
     end
 
-    subgraph SP["Side Panel"]
-        PANEL1{{"⚡ Intuicja\nMemory block preview"}}
-        PANEL1 -->|✓ Zatwierdź| INJ
-        PANEL1 -->|✕ Ignoruj| NOINJ
-    end
+    CHR -->|write atom| DBC
+    DB1 -->|inject candidates| INT
+    DBN -->|inject candidates| INT
 
-    INJ[Inject ---MEMORY BLOCK---\ninto message] --> SEND
-    NOINJ[Send original message\nwithout memory] --> SEND
-
-    SEND([Submit via DOM\nno API key needed]) --> AI
-
-    subgraph AI["AI Provider"]
-        CLAUDE["claude.ai / ChatGPT / Gemini\nUser's browser session"]
-    end
-
-    AI -->|Response streamed to DOM| DETECT
-
-    subgraph EXT2["Chrome Extension (content.js)"]
-        DETECT["Watch for\naction-bar-retry\n= streaming done"]
-    end
-
-    DETECT -->|question + answer| PANEL2
-
-    subgraph SP2["Side Panel"]
-        PANEL2{{"📖 Kronikarz\nQ+A preview"}}
-        PANEL2 -->|✓ Zapisz| CHRON
-        PANEL2 -->|✕ Ignoruj| DONE2([Done — nothing saved])
-    end
-
-    CHRON -->|POST /api/chronicle| KR
-
-    subgraph SRV2["Local Server"]
-        KR["Kronikarz t=0.3\nGenerate summary\ntopics, affect"]
-        KR --> DB[("SQLite\nraw_qa\ndiary\nmemory_log")]
-        KR --> GIT["Git commit\ninjection log"]
-    end
-
-    DB -.->|next session| MEM
-    GIT -.->|audit trail| GIT
-
-    style PANEL1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
-    style PANEL2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style SP1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style SP2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style CORTEX fill:#ede8f8,stroke:#7a6aaa,color:#1a1030
     style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
-    style AI fill:#e8e0f0,stroke:#7a6aaa,color:#1a1030
+    style DBC fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style DB1 fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style DBN fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style SESSION fill:none,stroke:#c8b898
 ```
 
 ## Overview
