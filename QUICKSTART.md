@@ -1,22 +1,22 @@
 # Pneuma Memory — Quickstart
 
-Uruchomienie w 5 minut.
+Up and running in 5 minutes.
 
 ---
 
-## Wymagania
+## Requirements
 
 - **Node.js 18+** — [nodejs.org](https://nodejs.org)
-- **LM Studio** — [lmstudio.ai](https://lmstudio.ai) z modelem `google/gemma-4-4b-it` (lub `qwen/qwen3.5-9b`)
+- **LM Studio** — [lmstudio.ai](https://lmstudio.ai) with `google/gemma-4-4b-it` loaded (or `qwen/qwen3.5-9b`)
 - **Chrome / Chromium**
-- RAM: min. 8GB (4GB system + 4GB dla modelu 4B)
+- RAM: 8GB minimum (4GB system + 4GB for the 4B model)
 
 ---
 
-## Krok 1 — Sklonuj i zainstaluj
+## Step 1 — Clone and install
 
 ```bash
-git clone https://github.com/your-org/pneuma-memory.git
+git clone https://github.com/lunara69-ctrl/pneuma-memory.git
 cd pneuma-memory
 npm install
 cp .env.example .env
@@ -24,20 +24,20 @@ cp .env.example .env
 
 ---
 
-## Krok 2 — Uruchom LM Studio
+## Step 2 — Start LM Studio
 
-1. Pobierz i zainstaluj [LM Studio](https://lmstudio.ai)
-2. Pobierz model: `google/gemma-4-4b-it` (lub `qwen/qwen3.5-9b`)
-3. Załaduj model → włącz serwer na porcie `1234`
-4. Sprawdź: `curl http://localhost:1234/v1/models`
+1. Download and install [LM Studio](https://lmstudio.ai)
+2. Download model: `google/gemma-4-4b-it` (or `qwen/qwen3.5-9b` for better recall)
+3. Load the model → enable the local server on port `1234`
+4. Verify: `curl http://localhost:1234/v1/models`
 
 ---
 
-## Krok 3 — Uruchom serwer Pneumy
+## Step 3 — Start the Pneuma server
 
 ### Windows
 ```
-start.bat          ← dwuklik
+start.bat          ← double-click
 ```
 
 ### Linux / Mac
@@ -45,7 +45,7 @@ start.bat          ← dwuklik
 node server.js
 ```
 
-Sprawdź:
+Verify:
 ```bash
 curl http://localhost:3333/api/status
 # {"ok":true,"port":3333,"version":"0.2.0"}
@@ -53,75 +53,58 @@ curl http://localhost:3333/api/status
 
 ---
 
-## Krok 4 — Zainstaluj wtyczkę Chrome
+## Step 4 — Install the Chrome extension
 
-1. Otwórz `chrome://extensions`
-2. Włącz **Developer mode**
-3. Kliknij **Load unpacked** → wybierz folder `extension/`
-4. Kliknij ikonkę **P** na pasku Chrome → otworzy się side panel
-
----
-
-## Krok 5 — Pierwszy test
-
-1. Otwórz `claude.ai` (lub `chatgpt.com`)
-2. W side panelu powinna pojawić się zielona kropka: `localhost:3333`
-3. Napisz wiadomość i wyślij
-4. Side panel pokaże sekcję **Intuicja** z podglądem memory block (jeśli masz coś w bazie)
-5. Po odpowiedzi AI — sekcja **Kronikarz** z podglądem do zatwierdzenia
-
-Przy pierwszym użyciu baza jest pusta — Kronikarz zacznie budować historię od teraz.
+1. Open `chrome://extensions`
+2. Enable **Developer mode** (top right)
+3. Click **Load unpacked** → select the `extension/` folder
+4. Click the **P** icon on the Chrome toolbar → side panel opens
 
 ---
 
-## Import istniejących rozmów
+## Step 5 — First test
 
-Masz eksporty z claude.ai w formacie Markdown (`**You**` / `**Claude**`)?
+1. Open `claude.ai` (or `chatgpt.com`)
+2. Side panel should show a green dot: `localhost:3333`
+3. Type a message and send
+4. **Intuicja** section shows a memory block preview (empty on first use — builds over time)
+5. After the AI responds — **Kronikarz** section shows the Q+A preview with Save / Ignore buttons
+
+The database starts empty. Approve a few Kronikarz entries and Intuicja will start injecting relevant context on future messages.
+
+---
+
+## Import existing conversations
+
+Have claude.ai Markdown exports (`**You**` / `**Claude**` format)?
 
 ```bash
-node src/tools/importer.js "ścieżka/do/rozmowy.md" "nazwa_sesji"
+node src/tools/importer.js "path/to/conversation.md" "session_name"
 ```
 
-Lub przez UI: http://localhost:3333/import
+Or via web UI: http://localhost:3333/import
 
 ---
 
-## Docker (alternatywa)
+## Docker (alternative)
 
 ```bash
 docker-compose up -d
 ```
 
-Serwer będzie dostępny na `http://localhost:3333`.  
-LM Studio musi działać na hoście — w `.env` ustaw `LMSTUDIO_URL=http://host.docker.internal:1234`.
+Server available at `http://localhost:3333`.
+LM Studio must run on the host — set `LMSTUDIO_URL=http://host.docker.internal:1234` in `.env`.
 
 ---
 
-## Weryfikacja po 5 minutach
+## Troubleshooting
 
-```bash
-# Status serwera
-curl http://localhost:3333/api/status
+**Port 3333 busy:** `start.bat` releases it automatically. Manual: `taskkill /F /IM node.exe` (Windows)
 
-# Test memory block
-curl -X POST http://localhost:3333/api/memory \
-  -H "Content-Type: application/json" \
-  -d '{"message":"testowe pytanie","sessionId":"test"}'
+**LM Studio not responding:** Check that the server is running (green dot in LM Studio) and a model is loaded.
 
-# Podejrzyj bazę
-curl http://localhost:3333/api/status
-```
+**Extension shows "server offline":** Verify the server is running (`curl localhost:3333/api/status`). CORS is configured — no extra setup needed.
 
-Jeśli wszystko zwraca JSON — działa.
+**No memory block injected:** Database is empty on first use. Approve a few Kronikarz saves — after a few turns Intuicja will start finding matches.
 
----
-
-## Problemy?
-
-**Port 3333 zajęty:** `start.bat` zwalnia go automatycznie. Ręcznie: `taskkill /F /IM node.exe`
-
-**LM Studio nie odpowiada:** Sprawdź czy serwer jest włączony (zielona kropka w LM Studio) i model załadowany.
-
-**Wtyczka nie widzi serwera:** Sprawdź czy serwer działa (`curl localhost:3333/api/status`). CORS jest skonfigurowany — nie potrzeba dodatkowych ustawień.
-
-**Brak memory block:** Baza jest pusta. Wyślij kilka wiadomości przez wtyczkę i zatwierdź w Kronikarz — po kilku turach Intuicja zacznie znajdować pasujące Q-A.
+**Want better recall?** Switch to `qwen/qwen3.5-9b` in `.env` (requires ~6GB VRAM).
