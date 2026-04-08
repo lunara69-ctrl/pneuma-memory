@@ -1,0 +1,24 @@
+services:
+  pneuma:
+    build: .
+    ports:
+      - "3333:3333"
+    volumes:
+      # Trwałe dane — baza SQLite i git log injections
+      - ./data:/app/data
+      - ./memory-git:/app/memory-git
+    environment:
+      PORT: 3333
+      # LM Studio działa na hoście — użyj host.docker.internal (Mac/Windows)
+      # Na Linux: host-gateway lub adres IP hosta
+      LMSTUDIO_URL: http://host.docker.internal:1234
+      MODEL_INTUICJA: google/gemma-4-4b-it
+      MODEL_KRONIKARZ: google/gemma-4-4b-it
+      MODEL_KINIA: google/gemma-4-4b-it
+      # Opcjonalnie: Claude API dla Kini
+      # ANTHROPIC_API_KEY: sk-ant-...
+      DEBUG: "false"
+    restart: unless-stopped
+    extra_hosts:
+      # Potrzebne na Linux żeby host.docker.internal działało
+      - "host.docker.internal:host-gateway"

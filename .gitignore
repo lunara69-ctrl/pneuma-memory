@@ -1,0 +1,22 @@
+# Zależności - npm install je odtworzy
+node_modules/
+
+# Twoja baza danych - prywatna, nie dla repo
+data/
+
+# Git log injections - lokalny
+memory-git/
+
+# Sekrety - NIGDY nie wrzucaj do repo
+.env
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# Logi
+*.log
+npm-debug.log*

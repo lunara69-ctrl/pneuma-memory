@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneuma / Import Historyczny</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f5f4f0;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 0 0 60px 0;
+        }
+
+        /* TOP NAV */
+        .breadcrumb {
+            background: #fff;
+            border-bottom: 1px solid #e0ddd6;
+            padding: 10px 32px;
+            font-size: 11px;
+            color: #7a7a6a;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* CARD */
+        .card {
+            background: #fff;
+            border: 1px solid #e0ddd6;
+            border-radius: 12px;
+            margin: 28px auto;
+            max-width: 760px;
+            padding: 32px 36px;
+        }
+
+        .card-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: #5a5a4a;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .card-desc code {
+            background: #f0ede6;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #2d6a4f;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* FORM */
+        .form-section {
+            background: #fff;
+            border: 1px solid #e0ddd6;
+            border-radius: 12px;
+            margin: 0 auto 20px auto;
+            max-width: 760px;
+            padding: 28px 36px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 28px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full { grid-column: 1 / -1; }
+
+        label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6a6a5a;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        textarea {
+            border: 1px solid #d0cdc6;
+            border-radius: 6px;
+            padding: 9px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1a1a1a;
+            background: #fafaf8;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input:focus, textarea:focus { border-color: #2d6a4f; background: #fff; }
+
+        textarea {
+            resize: vertical;
+            min-height: 160px;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* FILE INPUT */
+        .file-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 20px;
+        }
+
+        .file-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .file-status {
+            font-size: 12px;
+            color: #2d6a4f;
+            font-weight: 600;
+            padding-top: 6px;
+        }
+
+        input[type="file"] {
+            font-size: 13px;
+            color: #5a5a4a;
+            padding: 6px 0;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #f0ede6;
+            border: 1px solid #d0cdc6;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-family: inherit;
+        }
+
+        /* BUTTONS */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            border: 1px solid #d0cdc6;
+            color: #3a3a2a;
+        }
+        .btn-secondary:hover { background: #f5f4f0; border-color: #aaa; }
+
+        .btn-primary {
+            background: #2d6a4f;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #235a40; }
+        .btn-primary:disabled { background: #8aab99; cursor: not-allowed; }
+
+        /* PREVIEW */
+        .preview-section {
+            background: #fff;
+            border: 1px solid #e0ddd6;
+            border-radius: 12px;
+            margin: 0 auto;
+            max-width: 760px;
+            padding: 28px 36px;
+        }
+
+        .preview-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6a6a5a;
+            margin-bottom: 16px;
+        }
+
+        .preview-empty {
+            font-size: 13px;
+            color: #9a9a8a;
+            font-style: italic;
+        }
+
+        .chunk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chunk-item {
+            border: 1px solid #e8e5de;
+            border-radius: 8px;
+            padding: 12px 16px;
+            background: #fafaf8;
+        }
+
+        .chunk-meta {
+            font-size: 11px;
+            color: #7a7a6a;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        .chunk-q {
+            font-size: 13px;
+            color: #2a2a1a;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .chunk-a {
+            font-size: 12px;
+            color: #5a5a4a;
+            line-height: 1.5;
+        }
+
+        .chunk-topic {
+            display: inline-block;
+            background: #e8f0ec;
+            color: #2d6a4f;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 3px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            height: 4px;
+            background: #e0ddd6;
+            border-radius: 2px;
+            margin: 16px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2d6a4f;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .status-msg {
+            font-size: 13px;
+            color: #2d6a4f;
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        .status-msg.error { color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <div class="breadcrumb">PNEUMA / IMPORT HISTORYCZNY</div>
+
+    <div class="card">
+        <div class="card-title">RAW Chat Importer</div>
+        <div class="card-desc">
+            Wklej długi surowy chat, podaj marker Lucky i marker Kini, ustaw zakres dat,
+            a importer potnie to na Q/A, zapisze do <code>turns_raw</code> i puści
+            przez dedykowanego Kronikarza historycznego.
+        </div>
+        <a class="back-link" href="#" id="back-btn">← Wróć do chatu</a>
+    </div>
+
+    <div class="form-section">
+
+        <div class="file-row">
+            <div class="file-group">
+                <label>Dodaj plik</label>
+                <input type="file" id="file-input" accept=".md,.txt">
+            </div>
+            <div class="file-group">
+                <label>&nbsp;</label>
+                <div class="file-status" id="file-status">Gotowa na preview.</div>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Znacznik w RAW dla Lucky</label>
+                <input type="text" id="marker-lucky" value="**You**" placeholder="np. Lucky: lub **You**">
+            </div>
+            <div class="form-group">
+                <label>Znacznik w RAW dla Kinia</label>
+                <input type="text" id="marker-kinia" value="**Claude**" placeholder="np. Kinia: lub **Claude**">
+            </div>
+
+            <div class="form-group">
+                <label>Data początkowa</label>
+                <input type="datetime-local" id="date-from">
+            </div>
+            <div class="form-group">
+                <label>Data końcowa</label>
+                <input type="datetime-local" id="date-to">
+            </div>
+
+            <div class="form-group full">
+                <label>Raw Chat</label>
+                <textarea id="raw-chat" placeholder="Wklej tutaj długi historyczny chat..."></textarea>
+            </div>
+
+            <div class="form-group full">
+                <label>Session ID (opcjonalne)</label>
+                <input type="text" id="session-id" placeholder="np. rozmowy_2026_q1 (puste = auto)">
+            </div>
+        </div>
+
+        <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="status-msg" id="status-msg"></div>
+
+        <div class="btn-row">
+            <button class="btn btn-secondary" id="preview-btn">Preview chunków</button>
+            <button class="btn btn-primary" id="import-btn">Importuj do Pneumy i puść Kronikarza</button>
+        </div>
+
+    </div>
+
+    <div class="preview-section">
+        <div class="preview-title">Preview</div>
+        <div id="preview-content" class="preview-empty">Jeszcze nic nie przeliczałam.</div>
+    </div>
+
+    <script src="importer.js"></script>
+</body>
+</html>

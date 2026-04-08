@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f5f0e8;
+      color: #2c2118;
+      font-family: 'Segoe UI', Georgia, sans-serif;
+      font-size: 13px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      background: #ede8dc;
+      padding: 10px 14px;
+      border-bottom: 1px solid #d8d0c0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 14px;
+      color: #7a5c2e;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #b8a898; flex-shrink: 0;
+    }
+    .status-dot.ok  { background: #5a8a5a; box-shadow: 0 0 5px #5a8a5a88; }
+    .status-dot.err { background: #b85a3a; box-shadow: 0 0 5px #b85a3a88; }
+    .status-text { font-size: 11px; color: #9a8878; margin-left: auto; }
+
+    /* SECTIONS */
+    .sections { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+    .section {
+      border-bottom: 1px solid #d8d0c0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-header {
+      padding: 8px 14px 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ede8dc;
+    }
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9a8878;
+    }
+    .section-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #e0d8cc;
+      color: #9a8878;
+      margin-left: auto;
+      font-weight: 500;
+    }
+    .section-badge.active { background: #d4e8d4; color: #3a6a3a; }
+    .section-badge.warn   { background: #f0e4c8; color: #8a5a18; }
+    .section-badge.ok     { background: #d4e8d4; color: #3a6a3a; }
+
+    /* TOPIC BAR */
+    .topic-bar { padding: 4px 14px 0; display: none; }
+    .topic-bar.show { display: block; }
+    .topic-pill {
+      display: inline-block;
+      background: #e8dcc8;
+      color: #7a5c2e;
+      padding: 2px 9px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      border: 1px solid #d0c4a8;
+    }
+
+    /* PREVIEW */
+    .preview {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #9a8878;
+      font-style: italic;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 280px;
+      overflow-y: auto;
+      min-height: 56px;
+      background: #f5f0e8;
+    }
+    .preview.has-content {
+      color: #2c2118;
+      font-style: normal;
+    }
+
+    /* scrollbar */
+    .preview::-webkit-scrollbar { width: 4px; }
+    .preview::-webkit-scrollbar-track { background: #ede8dc; }
+    .preview::-webkit-scrollbar-thumb { background: #c8bca8; border-radius: 2px; }
+
+    /* KRONIKARZ Q/A */
+    .diary-q { font-size: 11px; color: #7a6858; margin-bottom: 5px; line-height: 1.4; }
+    .diary-a { font-size: 12px; color: #2c2118; line-height: 1.6; }
+
+    /* BUTTONS */
+    .btn-row {
+      padding: 8px 14px;
+      display: none;
+      gap: 8px;
+    }
+    .btn-row.show { display: flex; }
+
+    button {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .btn-approve {
+      background: #d8ead8;
+      color: #2a5a2a;
+      border-color: #b8d8b8;
+    }
+    .btn-approve:hover { background: #c8dfc8; }
+
+    .btn-ignore {
+      background: #ede8dc;
+      color: #7a6858;
+      border-color: #d0c8b8;
+    }
+    .btn-ignore:hover { background: #e4ddd0; }
+
+    /* FOOTER */
+    .footer {
+      padding: 7px 14px;
+      border-top: 1px solid #d8d0c0;
+      font-size: 10px;
+      color: #b8a898;
+      flex-shrink: 0;
+      background: #ede8dc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="status-dot" id="dot"></div>
+    <h1>⚡ Pneuma</h1>
+    <div class="status-text" id="status-text">sprawdzam...</div>
+  </div>
+
+  <div class="sections">
+
+    <!-- INTUICJA -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Intuicja</span>
+        <span class="section-badge" id="badge-intuicja">czeka</span>
+      </div>
+      <div class="topic-bar" id="topic-bar">
+        <span class="topic-pill" id="topic-pill"></span>
+      </div>
+      <div class="preview" id="preview-intuicja">Brak aktywnego pytania...</div>
+      <div class="btn-row" id="btns-intuicja">
+        <button class="btn-approve" id="btn-intuicja-ok">✓ Zatwierdź</button>
+        <button class="btn-ignore"  id="btn-intuicja-skip">✕ Ignoruj</button>
+      </div>
+    </div>
+
+    <!-- KRONIKARZ -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Kronikarz</span>
+        <span class="section-badge" id="badge-kronikarz">czeka</span>
+      </div>
+      <div class="preview" id="preview-kronikarz">Brak odpowiedzi do zapisania...</div>
+      <div class="btn-row" id="btns-kronikarz">
+        <button class="btn-approve" id="btn-kronikarz-ok">✓ Zapisz</button>
+        <button class="btn-ignore"  id="btn-kronikarz-skip">✕ Ignoruj</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer" id="footer-info">sesja: —</div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

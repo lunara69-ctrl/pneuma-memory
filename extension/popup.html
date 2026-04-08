@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 340px;
+      background: #0d0d1a;
+      color: #e0e0f0;
+      font-family: 'Segoe UI', monospace, sans-serif;
+      font-size: 13px;
+    }
+
+    .header {
+      background: #16213e;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2a2a4a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 { font-size: 15px; color: #7c83ff; font-weight: 700; }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #888; flex-shrink: 0;
+    }
+    .status-dot.ok  { background: #2d9e6b; box-shadow: 0 0 6px #2d9e6b; }
+    .status-dot.err { background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
+
+    .status-text { font-size: 11px; color: #888; margin-left: auto; }
+
+    .section { padding: 10px 16px; border-bottom: 1px solid #1a1a3a; }
+    .section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #555; margin-bottom: 8px;
+    }
+
+    .session-id { font-family: monospace; font-size: 11px; color: #4a9eff; }
+
+    .log-empty { font-size: 12px; color: #444; font-style: italic; }
+
+    .log-entry {
+      border-left: 2px solid #2a3a5a;
+      padding: 6px 10px;
+      margin-bottom: 6px;
+      background: #0a0a1a;
+      border-radius: 0 4px 4px 0;
+    }
+    .log-ts   { font-size: 10px; color: #555; margin-bottom: 3px; }
+    .log-q    { font-size: 12px; color: #c8d3ff; margin-bottom: 2px; }
+    .log-a    { font-size: 11px; color: #7a8a9a; }
+
+    .footer {
+      padding: 10px 16px;
+      display: flex; gap: 8px;
+    }
+    button {
+      flex: 1; padding: 7px; border-radius: 5px; border: none;
+      font-size: 12px; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary { background: #2a3a7a; color: #aabbff; }
+    .btn-primary:hover { background: #3a4a9a; }
+    .btn-secondary { background: #1a1a2a; color: #555; border: 1px solid #2a2a4a; }
+    .btn-secondary:hover { color: #888; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="status-dot" id="dot"></div>
+    <h1>⚡ Pneuma Memory</h1>
+    <div class="status-text" id="status-text">sprawdzam...</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Sesja</div>
+    <div class="session-id" id="session-id">—</div>
+  </div>
+
+  <div class="section" style="max-height:320px; overflow-y:auto;">
+    <div class="section-title">Kronikarz — ostatnie zapisy</div>
+    <div id="log-container"><div class="log-empty">Brak wpisów w tej sesji.</div></div>
+  </div>
+
+  <div class="footer">
+    <button class="btn-primary" id="open-import">↑ Import</button>
+    <button class="btn-secondary" id="clear-log">Wyczyść log</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Pneuma Memory",
+  "version": "0.2.0",
+  "description": "Wstrzykuje pamięć Pneumy do każdego pytania w chacie",
+
+  "permissions": ["storage", "sidePanel", "tabs", "scripting"],
+
+  "host_permissions": [
+    "http://localhost:3333/*",
+    "*://claude.ai/*",
+    "*://chatgpt.com/*",
+    "*://gemini.google.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Pneuma Memory"
+  },
+
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://claude.ai/*", "*://chatgpt.com/*", "*://gemini.google.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["*://*/*"]
+    }
+  ]
+}
