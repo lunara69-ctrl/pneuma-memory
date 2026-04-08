@@ -30,44 +30,50 @@ Beyond cost: knowledge from last week's conversation is gone. Every new chat sta
 
 ```mermaid
 flowchart TD
-    U([User input]) --> INTERCEPT
-    INTERCEPT["Chrome Extension\nintercepts submit"] -->|POST /api/memory| INTUITION
 
-    INTUITION["⚡ Intuition  t=0.1\nDetect topic · Query SQLite\nBuild memory block"]
+    subgraph SESSION["🗨️ Current Chat Session  (unique session_id)"]
+        U([User input]) --> EXT["Chrome Extension\nintercepts submit"]
+        EXT -->|POST /api/memory| INT
 
-    INTUITION --> DEC1
+        INT["⚡ Intuition  t=0.1\nDetect topic · Query SQLite\nskip atoms already used\nin THIS session"]
+        INT --> SP1
 
-    DEC1{{"Side Panel\nIntuition preview"}}
-    DEC1 -->|✓ Approve| INJ["Inject ---MEMORY BLOCK---\ninto message"]
-    DEC1 -->|✕ Ignore| SEND2["Send original\nwithout memory"]
+        SP1{{"Side Panel\nIntuition preview"}}
+        SP1 -->|✓ Approve| INJ["Inject ---MEMORY BLOCK---\nfrom other sessions"]
+        SP1 -->|✕ Ignore| ORIG["Send original\nwithout memory"]
 
-    INJ --> CORTEX
-    SEND2 --> CORTEX
+        INJ --> CORTEX
+        ORIG --> CORTEX
 
-    subgraph CORTEX["🧠 Cortex  — plug in any brain"]
-        direction LR
-        B1["claude.ai / ChatGPT\nGemini · browser OAuth"]
-        B2["Hermes-agent\nOpenClaw · local API"]
-        B3["Any stateless LLM\nAPI · WebSocket · CLI"]
+        CORTEX["🧠 Cortex — plug in any brain\n─────────────────────────\nclaude.ai · ChatGPT · Gemini\nbrowser OAuth — no API key\n─────────────────────────\nHermes-agent · OpenClaw\nlocal API · WebSocket · CLI\n─────────────────────────\nAny stateless LLM interface"]
+
+        CORTEX --> DET["Extension detects\nresponse complete"]
+        DET --> SP2
+
+        SP2{{"Side Panel\nChronicler preview"}}
+        SP2 -->|✓ Save| CHR["📖 Chronicler  t=0.3\nGenerate summary\ntopics · affect"]
+        SP2 -->|✕ Ignore| DONE([Done — not saved])
     end
 
-    CORTEX --> DETECT["Extension detects\nresponse complete"]
-    DETECT --> DEC2
+    subgraph DB["🗄️ Long-term Memory — SQLite"]
+        direction LR
+        DBC[("session_id-current\nnew atoms")]
+        DB1[("session_id-1\nrelevant Q-A")]
+        DBN[("session_id-n\nrelevant Q-A")]
+    end
 
-    DEC2{{"Side Panel\nChronicler preview"}}
-    DEC2 -->|✓ Save| CHRONICLER
-    DEC2 -->|✕ Ignore| DONE([Done])
+    CHR -->|write atom| DBC
+    DB1 -->|inject candidates| INT
+    DBN -->|inject candidates| INT
 
-    CHRONICLER["📖 Chronicler  t=0.3\nGenerate summary\ntopics · affect"]
-    CHRONICLER --> DB[("SQLite\nraw_qa · diary")]
-    CHRONICLER --> GIT["Git injection log"]
-
-    DB -.->|next session| INTUITION
-
-    style DEC1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
-    style DEC2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
-    style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
+    style SP1 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
+    style SP2 fill:#f0e4c8,stroke:#c8902a,color:#3a2010
     style CORTEX fill:#ede8f8,stroke:#7a6aaa,color:#1a1030
+    style DB fill:#d4e8d4,stroke:#5a8a5a,color:#1a3a1a
+    style DBC fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style DB1 fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style DBN fill:#c8e0c8,stroke:#5a8a5a,color:#1a3a1a
+    style SESSION fill:none,stroke:#c8b898
 ```
 
 ---
